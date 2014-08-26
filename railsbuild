@@ -1,0 +1,26 @@
+#!/bin/bash
+#
+# railsbuild
+# ==========
+#
+# Automatic builds of Ruby on Rails core packages for Fedora Project
+#
+# Usage:
+#   ./railsbuild FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION
+#
+# Configuration:
+#   ./railsbuild-common
+
+FEDORA_VERSION=$1
+OLD_RAILS_VERSION=$2
+NEW_RAILS_VERSION=$3
+
+# Create directory structure and get the upstream repositories
+$(dirname $(readlink -f "$0"))/railsbuild-prepare $FEDORA_VERSION
+
+# Get the test suites
+$(dirname $(readlink -f "$0"))/railsbuild-fetch-tests $FEDORA_VERSION $NEW_RAILS_VERSION
+
+# Update specs
+$(dirname $(readlink -f "$0"))/railsbuild-update-pks $FEDORA_VERSION $OLD_RAILS_VERSION $NEW_RAILS_VERSION
+
