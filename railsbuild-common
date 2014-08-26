@@ -1,0 +1,17 @@
+#!/bin/bash
+# Common stuff shared by railsbuild scripts
+
+RAILSBUILD_VERSION=0.1
+
+# Fedora master branch
+FEDORA_RAWHIDE=22
+
+# Ruby on Rails gems
+GEMS=(activesupport
+      activemodel
+      activerecord
+      actionview
+      actionpack
+      actionmailer
+      railties
+      rails)

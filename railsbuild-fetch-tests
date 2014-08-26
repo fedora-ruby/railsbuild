@@ -1,0 +1,32 @@
+#!/bin/bash
+# Get the test suites for Rails gems from ~/.railsbuild/upstream/rails (upstream git repo)
+# and place them in ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+#
+# Usage:
+#  ./railsbuild-fetch-tests FEDORA_VERSION VERSION
+
+. $(dirname $(readlink -f "$0"))/railsbuild-common
+
+FEDORA_VERSION=$1
+VERSION=$2
+
+cd ~/.railsbuild/upstream/rails
+git pull
+git checkout v$VERSION
+
+for gem in "${GEMS[@]}"
+do
+  echo "Getting test suite for $gem..."
+
+  UPDATED=`ls ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/ | grep "$gem-$VERSION-tests.tgz"`
+
+  # Are files already in place?
+  if [ "$UPDATED" == "$gem-$VERSION-tests.tgz" ]; then
+    continue
+  fi
+
+  cd ~/projects/rails/$gem
+  tar czvf $gem-$VERSION-tests.tgz test/
+  cp $gem-$VERSION-tests.tgz ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/.
+done
+

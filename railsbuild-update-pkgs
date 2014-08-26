@@ -1,0 +1,57 @@
+#!/bin/bash
+# Prepare the update of all Rails gems at once in Fedora git
+# repositories at:
+#   ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+#
+# Usage:
+#   ./railsbuild-update-pkgs FEDORA_VERSION OLD_VERSION NEW_VERSION
+
+. $(dirname $(readlink -f "$0"))/railsbuild-common
+
+FEDORA_VERSION=$1
+OLD_VERSION=$2
+NEW_VERSION=$3
+
+for gem in "${GEMS[@]}"
+do
+  echo "Updating $gem:"
+  pushd ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/
+  git pull
+
+  if [ "$FEDORA_VERSION" = "$FEDORA_RAWHIDE" ]; then
+    git checkout master
+  else
+    git checkout f$FEDORA_VERSION
+  fi
+  gem fetch $gem --version $NEW_VERSION
+  
+  UPDATED=`cat ./rubygem-$gem.spec | grep "Version: $NEW_VERSION"`
+  if [ "$UPDATED" == "Version: $NEW_VERSION" ]; then
+    echo "$gem: already updated"
+    continue
+  fi
+
+  EPOCH=`cat ./rubygem-$gem.spec | grep -E "Epoch:(.*)" | sed 's/Epoch: //'`
+  if [ "$EPOCH" ]; then
+    epoch_prefix="$EPOCH:"
+  else
+    epoch_prefix=""
+  fi
+
+  sed -i -e "s/git checkout v$OLD_VERSION/git checkout v$NEW_VERSION/" rubygem-$gem.spec
+  sed -i -e "s/$OLD_VERSION-tests.tgz/$NEW_VERSION-tests.tgz/" rubygem-$gem.spec
+  sed -i -e "s/Version:.*$OLD_VERSION/Version: $NEW_VERSION/g" rubygem-$gem.spec
+  sed -i -e "s/Release:.*/Release: 1%{?dist}/g" rubygem-$gem.spec
+
+  CHANGELOG='* '
+  CHANGELOG+=`date +'%a %b %d %Y'`
+  CHANGELOG+=" "
+  CHANGELOG+=`rpmdev-packager` 
+  CHANGELOG+=" - $epoch_prefix$NEW_VERSION-1\n"
+  CHANGELOG+="- Update to $gem $NEW_VERSION"
+
+  sed -i -e "s/%changelog/%changelog\n$CHANGELOG\n/g" rubygem-$gem.spec
+  echo "$gem: rubygem-$gem.spec updated"
+  popd
+done
+

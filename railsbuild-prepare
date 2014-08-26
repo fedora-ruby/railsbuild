@@ -1,0 +1,37 @@
+#!/bin/bash
+# Prepare directories for the railsbuild scripts including fetching Fedora
+# and upstream repositories at:
+#   ~/.railsbuild/upstream/rails
+#   ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+#
+# Usage:
+#   ./railsbuild-prepare FEDORA_VERSION
+
+. $(dirname $(readlink -f "$0"))/railsbuild-common
+
+FEDORA_VERSION=$1
+
+for gem in "${GEMS[@]}"
+do
+  dir=~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+  if [ -d $dir ]; then
+    echo "$dir exists"
+  else
+    echo "Creating $dir"
+    mkdir -p ~/.railsbuild/f$FEDORA_VERSION/
+    pushd ~/.railsbuild/f$FEDORA_VERSION/
+    fedpkg co rubygem-$gem
+    popd
+  fi
+done
+
+dir=~/.railsbuild/upstream
+if [ -d $dir ]; then
+  echo "$dir exists"
+else
+  echo "Creating $dir"
+  mkdir -p $dir
+  pushd $dir
+  git clone https://github.com/rails/rails.git
+  popd
+fi
