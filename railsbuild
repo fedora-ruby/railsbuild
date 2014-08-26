@@ -15,6 +15,21 @@ FEDORA_VERSION=$1
 OLD_RAILS_VERSION=$2
 NEW_RAILS_VERSION=$3
 
+print_help () {
+  echo "Usage: ./railsbuild FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION"
+}
+
+if [ "$1" = "--help" ]; then
+  print_help
+  exit 0
+fi
+
+if [ "$3" = "" ] || [ "$2" = "" ] || [ $2 = "" ]; then
+  echo "Error: railsbuild takes 3 parameters"
+  print_help
+  exit 1
+fi
+
 # Create directory structure and get the upstream repositories
 $(dirname $(readlink -f "$0"))/railsbuild-prepare $FEDORA_VERSION
 
