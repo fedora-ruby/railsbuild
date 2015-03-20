@@ -25,7 +25,7 @@ do
     continue
   fi
 
-  cd ~/projects/rails/$gem
+  cd ~/.railsbuild/upstream/rails/$gem
   tar czvf $gem-$VERSION-tests.tgz test/
   cp $gem-$VERSION-tests.tgz ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/.
 done
