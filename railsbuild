@@ -39,3 +39,5 @@ $(dirname $(readlink -f "$0"))/railsbuild-fetch-tests $FEDORA_VERSION $NEW_RAILS
 # Update specs
 $(dirname $(readlink -f "$0"))/railsbuild-update-pkgs $FEDORA_VERSION $OLD_RAILS_VERSION $NEW_RAILS_VERSION
 
+# Run the build
+$(dirname $(readlink -f "$0"))/railsbuild-build $FEDORA_VERSION $NEW_RAILS_VERSION
