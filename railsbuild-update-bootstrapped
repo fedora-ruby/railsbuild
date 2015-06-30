@@ -1,0 +1,41 @@
+#!/bin/bash
+# Prepare the update of previously bootstrapped Rails gems at once in Fedora git
+# repositories at:
+#   ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+#
+# Usage:
+#   ./railsbuild-update-boostrapped FEDORA_VERSION NEW_VERSION
+
+. $(dirname $(readlink -f "$0"))/railsbuild-common
+
+FEDORA_VERSION=$1
+NEW_VERSION=$2
+
+for gem in "${BOOTSTRAPPED_GEMS[@]}"
+do
+  echo "Building previously bootstrapped $gem:"
+  pushd ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/
+
+  EPOCH=`cat ./rubygem-$gem.spec | grep -E "Epoch:(.*)" | sed 's/Epoch: //'`
+  if [ "$EPOCH" ]; then
+    epoch_prefix="$EPOCH:"
+  else
+    epoch_prefix=""
+  fi
+
+  # Disable bootstrapping
+  sed -i -e "s/%global bootstrap 1/%global bootstrap 0/" rubygem-$gem.spec
+  sed -i -e "s/Release:.*/Release: 2%{?dist}/g" rubygem-$gem.spec
+
+  CHANGELOG='* '
+  CHANGELOG+=`date +'%a %b %d %Y'`
+  CHANGELOG+=" "
+  CHANGELOG+=`rpmdev-packager`
+  CHANGELOG+=" - $epoch_prefix$NEW_VERSION-2\n"
+  CHANGELOG+="- Enable tests"
+
+  sed -i -e "s/%changelog/%changelog\n$CHANGELOG\n/g" rubygem-$gem.spec
+
+  echo "$gem: rubygem-$gem.spec updated"
+  popd
+done
