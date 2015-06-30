@@ -41,7 +41,7 @@ do
       git commit -am "Update to $gem $VERSION"
       git push
       fedpkg build
-      
+
       if [ "$?" = "0" ]; then
         echo "= SUCCESS ======"
         echo "$gem: build of rubygem-$gem succeeded"
@@ -62,10 +62,63 @@ do
   popd
 done
 
+# Update bootsrapped gems
+$(dirname $(readlink -f "$0"))/railsbuild-update-bootstrapped $FEDORA_VERSION $VERSION
+
+# Build bootsrapped gems again
+for gem in "${BOOTSTRAPPED_GEMS[@]}"
+do
+  pushd ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem
+    # Skip already done builds
+    if [ ! -f .bootstrapped ]; then
+      echo "$gem: final build for bootsrapped $gem already done"
+      continue
+    fi
+    rm .scratch-built
+    rm *.src.rpm
+    fedpkg scratch-build --srpm
+
+    if [ "$?" = "0" ]; then
+      touch .scratch-built
+      git stash
+      echo "= SUCCESS ======"
+      echo "$gem: scratch build of rubygem-$gem succeeded"
+      fedpkg import rubygem-$gem-*.src.rpm > /dev/null
+
+      if [ ! "$?" = "0" ]; then
+        echo "= FAIL ======"
+        echo "$gem: fedpkg import failed"
+        exit 1
+      fi
+
+      git commit -am "Enable tests"
+      git push
+      fedpkg build
+
+      if [ "$?" = "0" ]; then
+        echo "= SUCCESS ======"
+        echo "$gem: build of rubygem-$gem succeeded"
+        echo "$gem: waiting until the build becomes available..."
+        koji wait-repo f$FEDORA_VERSION-build --build=rubygem-$gem-$VERSION-1.fc$FEDORA_VERSION
+        rm .bootsrapped
+      else
+        echo "= FAIL ======"
+        echo "$gem: build of rubygem-$gem failed"
+        exit 1
+      fi
+    else
+      echo "= FAIL ======"
+      echo "$gem: scratch-build of rubygem-$gem failed"
+      exit 1
+    fi
+
+  popd
+done
+
 echo
 echo
 echo "= SUCCESSFULLY DONE ====="
 echo "Build of Ruby on Rails $VERSION for Fedora release $FEDORA_VERSION done."
-echo 
-echo "Run the following to delete the build metadata:" 
+echo
+echo "Run the following to delete the build metadata:"
 echo "  rm ~/.railsbuild/f$FEDORA_VERSION/rubygem-*/.*built"

@@ -16,3 +16,7 @@ GEMS=(activesupport
       actionmailer
       railties
       rails)
+
+# Gems that needs to be rebuild without bootstrapping
+BOOTSTRAPPED_GEMS=(actionview
+                   actionpack)

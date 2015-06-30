@@ -24,7 +24,7 @@ do
     git checkout f$FEDORA_VERSION
   fi
   gem fetch $gem --version $NEW_VERSION
-  
+
   UPDATED=`cat ./rubygem-$gem.spec | grep "Version: $NEW_VERSION"`
   if [ "$UPDATED" == "Version: $NEW_VERSION" ]; then
     echo "$gem: already updated"
@@ -46,7 +46,7 @@ do
   CHANGELOG='* '
   CHANGELOG+=`date +'%a %b %d %Y'`
   CHANGELOG+=" "
-  CHANGELOG+=`rpmdev-packager` 
+  CHANGELOG+=`rpmdev-packager`
   CHANGELOG+=" - $epoch_prefix$NEW_VERSION-1\n"
   CHANGELOG+="- Update to $gem $NEW_VERSION"
 
@@ -55,3 +55,12 @@ do
   popd
 done
 
+# Mark bootsrapping
+for gem in "${BOOTSTRAPPED_GEMS[@]}"
+do
+  pushd ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem/
+  # Enable bootstrapping if necessary
+  sed -i -e "s/%global bootstrap 0/%global bootstrap 1/" rubygem-$gem.spec
+  touch .bootstrapped
+  popd
+done

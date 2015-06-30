@@ -52,6 +52,14 @@ and move the gzipped test suites to Fedora git repositories at
 Prepares the update of all Rails gems at once in Fedora git repositories at:
 ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem.
 
+### railsbuild-update-bootstrapped
+
+```
+./railsbuild-update-bootstrapped FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION
+```
+Prepare the update of previously bootstrapped Rails gems at once in Fedora git
+repositories at: ~/.railsbuild/f$FEDORA_VERSION/rubygem-$gem.
+
 ### railsbuild-build
 
 ```
@@ -60,3 +68,6 @@ Prepares the update of all Rails gems at once in Fedora git repositories at:
 Does the builds of gems. It always tries to do a scratch-build first and
 if that goes fine, does a final build. Afterwards it waits for the build
 to become available and continues with the next gem.
+
+Once all the gems are built, it disable the bootstrapping of previously
+bootstrapped gems and builds them as well.
