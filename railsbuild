@@ -8,10 +8,10 @@
 # Usage:
 #   ./railsbuild [-n] FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION
 #
-#     -n  Do not run builds
+#     -n  Do not run builds.  Useful for major version upgrades.
 #
-# Configuration:
-#   ./railsbuild-common
+# Configuration file:
+#   railsbuild-common
 
 FEDORA_VERSION=$1
 OLD_RAILS_VERSION=$2
