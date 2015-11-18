@@ -30,6 +30,9 @@ if [ "$3" = "" ] || [ "$2" = "" ] || [ "$1" = "" ]; then
   exit 1
 fi
 
+# Set to default locale for the changelog date format
+export LC_ALL=C
+
 # Create directory structure and get the upstream repositories
 $(dirname $(readlink -f "$0"))/railsbuild-prepare $FEDORA_VERSION
 
