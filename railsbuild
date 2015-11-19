@@ -13,12 +13,8 @@
 # Configuration file:
 #   railsbuild-common
 
-FEDORA_VERSION=$1
-OLD_RAILS_VERSION=$2
-NEW_RAILS_VERSION=$3
-
 print_help () {
-  echo "Usage: ./railsbuild FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION"
+  echo "Usage: ./railsbuild [-n] FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION"
 }
 
 if [ "$1" = "--help" ]; then
@@ -37,6 +33,10 @@ if [ "$3" = "" ] || [ "$2" = "" ] || [ "$1" = "" ]; then
   print_help
   exit 1
 fi
+
+FEDORA_VERSION=$1
+OLD_RAILS_VERSION=$2
+NEW_RAILS_VERSION=$3
 
 # Set to default locale for the changelog date format
 export LC_ALL=C
