@@ -43,6 +43,9 @@ do
   sed -i -e "s/Version:.*$OLD_VERSION/Version: $NEW_VERSION/g" rubygem-$gem.spec
   sed -i -e "s/Release:.*/Release: 1%{?dist}/g" rubygem-$gem.spec
 
+  # Set to default locale for the changelog date format
+  export LC_ALL=C
+
   CHANGELOG='* '
   CHANGELOG+=`date +'%a %b %d %Y'`
   CHANGELOG+=" "

@@ -38,9 +38,6 @@ FEDORA_VERSION=$1
 OLD_RAILS_VERSION=$2
 NEW_RAILS_VERSION=$3
 
-# Set to default locale for the changelog date format
-export LC_ALL=C
-
 # Create directory structure and get the upstream repositories
 $(dirname $(readlink -f "$0"))/railsbuild-prepare $FEDORA_VERSION
 
