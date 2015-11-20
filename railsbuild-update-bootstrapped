@@ -27,6 +27,9 @@ do
   sed -i -e "s/%global bootstrap 1/%global bootstrap 0/" rubygem-$gem.spec
   sed -i -e "s/Release:.*/Release: 2%{?dist}/g" rubygem-$gem.spec
 
+  # Set to default locale for the changelog date format
+  export LC_ALL=C
+
   CHANGELOG='* '
   CHANGELOG+=`date +'%a %b %d %Y'`
   CHANGELOG+=" "

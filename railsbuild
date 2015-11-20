@@ -6,17 +6,15 @@
 # Automatic builds of Ruby on Rails core packages for Fedora Project
 #
 # Usage:
-#   ./railsbuild FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION
+#   ./railsbuild [-n] FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION
 #
-# Configuration:
-#   ./railsbuild-common
-
-FEDORA_VERSION=$1
-OLD_RAILS_VERSION=$2
-NEW_RAILS_VERSION=$3
+#     -n  Do not run builds.  Useful for major version upgrades.
+#
+# Configuration file:
+#   railsbuild-common
 
 print_help () {
-  echo "Usage: ./railsbuild FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION"
+  echo "Usage: ./railsbuild [-n] FEDORA_VERSION OLD_RAILS_VERSION NEW_RAILS_VERSION"
 }
 
 if [ "$1" = "--help" ]; then
@@ -24,11 +22,21 @@ if [ "$1" = "--help" ]; then
   exit 0
 fi
 
+# Option for not building
+[[ "$1" == "-n" ]] && {
+  NO_BUILD=y
+  shift
+} || NO_BUILD=
+
 if [ "$3" = "" ] || [ "$2" = "" ] || [ "$1" = "" ]; then
   echo "Error: railsbuild takes 3 parameters"
   print_help
   exit 1
 fi
+
+FEDORA_VERSION=$1
+OLD_RAILS_VERSION=$2
+NEW_RAILS_VERSION=$3
 
 # Create directory structure and get the upstream repositories
 $(dirname $(readlink -f "$0"))/railsbuild-prepare $FEDORA_VERSION
@@ -39,5 +47,7 @@ $(dirname $(readlink -f "$0"))/railsbuild-fetch-tests $FEDORA_VERSION $NEW_RAILS
 # Update specs
 $(dirname $(readlink -f "$0"))/railsbuild-update-pkgs $FEDORA_VERSION $OLD_RAILS_VERSION $NEW_RAILS_VERSION
 
-# Run the build
-$(dirname $(readlink -f "$0"))/railsbuild-build $FEDORA_VERSION $NEW_RAILS_VERSION
+# Run the build if not opted-out
+[[ "$NO_BUILD" ]] || {
+  $(dirname $(readlink -f "$0"))/railsbuild-build $FEDORA_VERSION $NEW_RAILS_VERSION
+}
