@@ -22,6 +22,18 @@ do
       continue
     fi
 
+    # Check changelog in spec file for same EVR
+    if [ -n "$(
+      sed -n '/^%changelog/,$p' rubygem-$gem.spec \
+        | grep -E " [0-9]+\:[0-9]+\.[0-9]+\.[0-9]+\-[0-9]+$" \
+        | head -n 2 | rev | cut -d' ' -f1 \
+        | sort | uniq -c | grep -vE "^[ ]*1 "
+      )" ]; then
+        echo "= FAIL ======"
+        echo "$gem: same EVR in changelog already exists"
+        exit 1
+    fi
+
     rm *.src.rpm
     fedpkg scratch-build --srpm
 
